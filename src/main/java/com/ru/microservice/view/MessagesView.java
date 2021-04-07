@@ -44,13 +44,8 @@ public class MessagesView extends VerticalLayout {
 
     private void configureGrid() {
         grid.setSizeFull();
-        //grid.removeColumnByKey("user");
         grid.removeColumnByKey("date");
         grid.setColumns("id", "text", "languageCode");
-        /*grid.addColumn(message -> {
-            Long user = message.getUser().getId();
-            return user == null ? "-" : user;
-        }).setHeader("Chat Id").setSortable(true);*/
         grid.addColumn(this::apply).setHeader("Date").setSortable(true);
     }
 

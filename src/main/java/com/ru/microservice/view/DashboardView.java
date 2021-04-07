@@ -40,28 +40,6 @@ public class DashboardView extends VerticalLayout {
         return chart;
     }
 
-
-   /* private ApexCharts getMessagesChart() {
-        ApexCharts donutChart = ApexChartsBuilder.get()
-                .withChart(ChartBuilder.get().withType(Type.donut).build())
-                .withLegend(LegendBuilder.get()
-                        .withPosition(Position.right)
-                        .build())
-                .withSeries(Double.valueOf(messageService.count()))
-                .withResponsive(ResponsiveBuilder.get()
-                        .withBreakpoint(480.0)
-                        .withOptions(OptionsBuilder.get()
-                                .withLegend(LegendBuilder.get()
-                                        .withPosition(Position.bottom)
-                                        .build())
-                                .build())
-                        .build())
-                .build();
-        add(donutChart);
-        setWidth("50%");
-        return donutChart;
-    }*/
-
     private Span getMessagesCount() {
         Span span = new Span(messageService.count() + " messages");
         span.addClassName("span");
