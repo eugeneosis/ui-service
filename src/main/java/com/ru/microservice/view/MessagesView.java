@@ -11,8 +11,10 @@ import com.vaadin.flow.router.Route;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Component;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.TimeZone;
 
 @Component
 @Route(value = "messages", layout = Layout.class)
@@ -34,11 +36,28 @@ public class MessagesView extends VerticalLayout {
     }
 
     @SneakyThrows
-    private String apply(Message message) {
+    private String getDateTimeStr(Message message) {
         if ((message.getDate() == null)) {
             return " ";
         } else {
-            return new SimpleDateFormat("HH:mm:ss").format(new Date(message.getDate() * 1000L));
+            LocalDateTime time =
+                    LocalDateTime.ofInstant(Instant.ofEpochMilli(message.getDate() * 1000),
+                            TimeZone.getDefault().toZoneId());
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            return time.format(formatter);
+        }
+    }
+
+    @SneakyThrows
+    private String copyPasteMethodGetDateTimeStrForDummyChangeDateTimePattern(Message message) {
+        if ((message.getDate() == null)) {
+            return " ";
+        } else {
+            LocalDateTime time =
+                    LocalDateTime.ofInstant(Instant.ofEpochMilli(message.getDate() * 1000),
+                            TimeZone.getDefault().toZoneId());
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+            return time.format(formatter);
         }
     }
 
@@ -46,7 +65,9 @@ public class MessagesView extends VerticalLayout {
         grid.setSizeFull();
         grid.removeColumnByKey("date");
         grid.setColumns("id", "text", "languageCode");
-        grid.addColumn(this::apply).setHeader("Date").setSortable(true);
+        grid.addColumn(this::getDateTimeStr).setHeader("Date").setSortable(true);
+        grid.addColumn(this::copyPasteMethodGetDateTimeStrForDummyChangeDateTimePattern).setHeader("Time").setSortable(true);
+
     }
 
     private void configureFilter() {

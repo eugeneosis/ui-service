@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.ru.microservice</groupId>
     <artifactId>ui-service</artifactId>
-    <version>1.0</version>
+    <version>1.0.0</version>
     <name>ui-service</name>
     <description>UI Microservice on Spring Boot</description>
 
