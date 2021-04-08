@@ -9,16 +9,18 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import lombok.SneakyThrows;
-import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.ObjectFactory;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.TimeZone;
 
-@Component
-@Route(value = "messages", layout = Layout.class)
+import static java.time.format.DateTimeFormatter.ofPattern;
+
+
 @PageTitle("Сообщения")
+@Route(value = "messages", layout = Layout.class)
 public class MessagesView extends VerticalLayout {
 
     private final MessageService messageService;
@@ -35,43 +37,42 @@ public class MessagesView extends VerticalLayout {
         listMessages();
     }
 
-    @SneakyThrows
-    private String getDateTimeStr(Message message) {
-        if ((message.getDate() == null)) {
-            return " ";
-        } else {
-            LocalDateTime time =
-                    LocalDateTime.ofInstant(Instant.ofEpochMilli(message.getDate() * 1000),
-                            TimeZone.getDefault().toZoneId());
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-            return time.format(formatter);
-        }
+    private LocalDateTime getLocalDateTime(Message message) {
+        return LocalDateTime.ofInstant(Instant.ofEpochMilli(message.getDate() * 1000),
+                TimeZone.getDefault().toZoneId());
     }
 
     @SneakyThrows
-    private String copyPasteMethodGetDateTimeStrForDummyChangeDateTimePattern(Message message) {
-        if ((message.getDate() == null)) {
-            return " ";
-        } else {
-            LocalDateTime time =
-                    LocalDateTime.ofInstant(Instant.ofEpochMilli(message.getDate() * 1000),
-                            TimeZone.getDefault().toZoneId());
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+    private String getDate(Message message, ObjectFactory<DateTimeFormatter> objectFactory) {
+        return getTime(message, objectFactory);
+    }
+
+    @SneakyThrows
+    private String getTime(Message message, ObjectFactory<DateTimeFormatter> objectFactory) {
+        return getString(message, objectFactory);
+    }
+
+    private String getString(Message message, ObjectFactory<DateTimeFormatter> objectFactory) {
+        if (message.getDate() == null) return " ";
+        else {
+            LocalDateTime time = getLocalDateTime(message);
+            DateTimeFormatter formatter = objectFactory.getObject();
             return time.format(formatter);
         }
     }
 
     private void configureGrid() {
         grid.setSizeFull();
-        grid.removeColumnByKey("date");
-        grid.setColumns("id", "text", "languageCode");
-        grid.addColumn(this::getDateTimeStr).setHeader("Date").setSortable(true);
-        grid.addColumn(this::copyPasteMethodGetDateTimeStrForDummyChangeDateTimePattern).setHeader("Time").setSortable(true);
-
+        grid.removeAllColumns();
+        grid.addColumn(Message::getId).setHeader("Id").setSortable(true);
+        grid.addColumn(Message::getText).setHeader("Сообщение").setSortable(true);
+        grid.addColumn(Message::getLanguageCode).setHeader("Язык").setSortable(true);
+        grid.addColumn(message -> getDate(message, () -> ofPattern("yyyy-MM-dd"))).setHeader("Дата").setSortable(true);
+        grid.addColumn(message -> getTime(message, () -> ofPattern("HH:mm:ss"))).setHeader("Время").setSortable(true);
     }
 
     private void configureFilter() {
-        search.setPlaceholder("Поиск по сообщениям");
+        search.setPlaceholder("Поиск сообщений");
         search.setClearButtonVisible(true);
         search.setValueChangeMode(ValueChangeMode.LAZY);
         search.addValueChangeListener(x -> listMessages());
